@@ -1,8 +1,6 @@
 const request = require("request");
-const args = process.argv.slice(2);
-const breedName = args[0];
 
-const fetchBreed = () => {
+const fetchBreedDescription = (breedName, callback) => {
   if (!breedName) {
     console.log(`The requested breed is not found.`);
     return;
@@ -10,14 +8,20 @@ const fetchBreed = () => {
   request(
     `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`,
     (error, response, body) => {
-      if (error) {
-        console.log(`Error ${error}`);
-      } else {
+      if (error === null) {
         const data = JSON.parse(body);
-        console.log(data[0].description);
+        //check if the data is exists or not.//
+        if (data.length > 0) {
+          callback(error, data[0].description);
+        } else {
+          callback(null, `data doesn't exists.`);
+        }
+      } else {
+        callback(error, `Error ${error}`);
+        console.log(`Error ${error}`);
       }
     }
   );
 };
 
-fetchBreed();
+module.exports = { fetchBreedDescription };
